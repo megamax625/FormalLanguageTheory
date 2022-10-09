@@ -27,7 +27,7 @@ def parse_input(input_data):
 
     print(constructors, variables, first_term, second_term)
 
-    parser = Parser(variables, list(constructors.keys()))
+    parser = Parser(variables, constructors)
     parsed_first = parser.parse_term(first_term)
     parsed_second = parser.parse_term(second_term)
 

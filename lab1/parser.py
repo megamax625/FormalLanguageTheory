@@ -4,9 +4,9 @@ class Parser:
 	# {"type": "var", name: "x"}
 	# {"type": "constr", "name": "f", args: [...]}
 
-	def __init__(self, var_names, constr_names):
+	def __init__(self, var_names, constructors):
 		self.var_names = var_names
-		self.constr_names = constr_names
+		self.constructors = constructors
 
 	def parse_term(self, s):
 		if self.is_var(s):
@@ -20,16 +20,20 @@ class Parser:
 		return re.fullmatch('[a-zA-Z]+', s) and s in self.var_names
 
 	def is_constr(self, s):
-		if re.fullmatch('[a-zA-Z]+', s) and s in self.constr_names:
+		if re.fullmatch('[a-zA-Z]+', s) and s in self.constructors:
 			# 0-местный конструктор
 			return True
-		elif re.fullmatch('[a-zA-Z]+\(.*\)', s) and s.split('(')[0] in self.constr_names:
+		elif re.fullmatch('[a-zA-Z]+\(.*\)', s) and s.split('(')[0] in self.constructors.keys():
 			num_brackets = 0
 			passed_first_bracket = False
 			first_bracket_index = 0
 			arg_ended = False
+			arg_num = self.constructors[s.split('(')[0]]
+			arg_count = 0
 			for i in range(len(s)):
 				# check args correctness
+				if (s[i] in self.var_names or s[i] in self.constructors.keys()) and num_brackets == 1:
+					arg_count += 1
 				if passed_first_bracket and arg_ended:
 					arg_ended = False
 					if s[i] != ',' and i != first_bracket_index+1 and i != len(s)-1:
@@ -44,6 +48,11 @@ class Parser:
 					num_brackets -= 1
 					if num_brackets == 1:
 						arg_ended = True
+			if arg_count != arg_num:
+				print(s)
+				print(arg_count)
+				print(arg_num)
+				raise ValueError(f"Arg numbers don't match: {s} must have {arg_num} args")
 			if num_brackets == 0:
 				return True
 		return False
@@ -54,7 +63,7 @@ class Parser:
 	def parse_constr(self, s):
 		first_bracket_index = s.find('(')
 
-		if first_bracket_index == -1: 
+		if first_bracket_index == -1:
 			# 0-местный конструктор
 			parsed_constr = {"type": "constr", "name": s, "args": []}
 		else:
