@@ -14,7 +14,8 @@ class Parser:
 		elif self.is_constr(s):
 			return self.parse_constr(s)
 		else:
-			raise ValueError(f"Unknown term: {s}")
+			print(f"Unknown term: {s}")
+			exit()
 
 	def is_var(self, s):
 		return re.fullmatch('[a-zA-Z]+', s) and s in self.var_names
@@ -37,7 +38,8 @@ class Parser:
 				if passed_first_bracket and arg_ended:
 					arg_ended = False
 					if s[i] != ',' and i != first_bracket_index+1 and i != len(s)-1:
-						raise ValueError("Bad constructor args")
+						print("Bad constructor args")
+						exit()
 				# check brackets
 				if s[i] == '(':
 					if not passed_first_bracket:
@@ -52,7 +54,8 @@ class Parser:
 				print(s)
 				print(arg_count)
 				print(arg_num)
-				raise ValueError(f"Arg numbers don't match: {s} must have {arg_num} args")
+				print(f"Arg numbers don't match: {s} must have {arg_num} args")
+				exit()
 			if num_brackets == 0:
 				return True
 		return False

@@ -79,7 +79,9 @@ class MultiEquationSet:
 			right_part_vars.append(me.get_right_part_vars())
 
 		if last_step and len(multieqs_to_check) > 0:
-			raise Exception("Cant choose multiequation. Unification error")
+			print("Cant choose multiequation. Unification error")
+			# TODO
+			exit()
 		if last_step:
 			multieqs_to_check = self.multiequations
 
@@ -99,7 +101,9 @@ class MultiEquationSet:
 		# нет мультиуравнения у которого ни одна переменная левой части 
 		# не встречается в правой части никакого уравнения вообще
 		if not is_ok:
-			raise Exception("Cant choose multiequation. Unification error")
+			print("Cant choose multiequation. Unification error")
+			# TODO
+			exit()
 
 		result_multieq = multieqs_to_check[i]
 		for i in range(len(self.multiequations)):
