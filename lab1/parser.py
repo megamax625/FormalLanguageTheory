@@ -31,6 +31,8 @@ class Parser:
 			arg_ended = False
 			arg_num = self.constructors[s.split('(')[0]]
 			arg_count = 0
+			first_extra_bracket_index = -1
+			extra_bracket_state = False		# True значит есть лишние открывающие скобки помимо первой
 			for i in range(len(s)):
 				# check args correctness
 				if (s[i] in self.var_names or s[i] in self.constructors.keys()) and num_brackets == 1:
@@ -40,21 +42,32 @@ class Parser:
 					if s[i] != ',' and i != first_bracket_index+1 and i != len(s)-1:
 						print("Bad constructor args")
 						exit()
+
 				# check brackets
 				if s[i] == '(':
 					if not passed_first_bracket:
 						first_bracket_index = i
 					passed_first_bracket = True
 					num_brackets += 1
+					if num_brackets > 1:
+						if first_extra_bracket_index == -1:
+							first_extra_bracket_index = i
+
 				elif s[i] == ')':
 					num_brackets -= 1
 					if num_brackets == 1:
 						arg_ended = True
+						first_extra_bracket_index = -1
+					elif num_brackets == -1:
+						print(f"Unbalanced parentheses: {s[i]} index {i} in {s}")
+						exit()
+				print(first_extra_bracket_index)
+
+			if first_extra_bracket_index != -1:
+				print(f"Unbalanced parentheses: {s[first_extra_bracket_index]} index {first_extra_bracket_index} in {s}")
+				exit()
 			if arg_count != arg_num:
-				print(s)
-				print(arg_count)
-				print(arg_num)
-				print(f"Arg numbers don't match: {s} must have {arg_num} args")
+				print(f"Arg numbers don't match: {s} must have {arg_num} args but has {arg_count}")
 				exit()
 			if num_brackets == 0:
 				return True
