@@ -2,6 +2,7 @@ import sys
 from parser import *
 from unification import *
 from multiequations import *
+from parser import parsed2str
 
 
 def debugprint(*args):
@@ -12,7 +13,6 @@ def debugprint(*args):
 def parse_input(input_data):
     input_data = ''.join(input_data)
     input_data = input_data.replace(' ', '').replace('\n', '').replace('\r', '')
-    print(input_data)
     input_data = input_data[13:]
     i = input_data.index("variables")
     constructors = input_data[0:i].split(',')
@@ -22,10 +22,8 @@ def parse_input(input_data):
     varstring = input_data[i:j]
     variables = varstring[10:j].split(',')
     k = input_data.index("Secondterm")
-    first_term = input_data[j+10:k]
-    second_term = input_data[k+11:]
-
-    print(constructors, variables, first_term, second_term)
+    first_term = input_data[j + 10:k]
+    second_term = input_data[k + 11:]
 
     parser = Parser(variables, constructors)
     parsed_first = parser.parse_term(first_term)
@@ -42,6 +40,21 @@ def start_multiequation(term1, term2, variables):
         MultiEquation([v], []) for v in variables
     ])
     return MultiEquationSet(multiequations)
+
+
+def replace(result, T):
+    if result['type'] == 'var':
+        for multieq in T.multiequations[1:]:
+            if result['name'] in multieq.vars and multieq.terms:
+                replacement = multieq.terms[0]
+                if replacement['type'] == 'constr':
+                    for c in range(len(replacement['args'])):
+                        replacement['args'][c] = replace(replacement['args'][c], T)
+                return replacement
+    elif result['type'] == 'constr':
+        for c in range(len(result['args'])):
+            result['args'][c] = replace(result['args'][c], T)
+    return result
 
 
 if __name__ == '__main__':
@@ -95,3 +108,10 @@ if __name__ == '__main__':
     print('-' * 40)
     print('RESULT:')
     print(T)
+
+    X_START = T.multiequations[0]
+    result = X_START.terms[0]
+    result = replace(result, T)
+    result = parsed2str(result)
+    final = f"FINAL = {result}"
+    print(final)

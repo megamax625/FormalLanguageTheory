@@ -61,7 +61,6 @@ class Parser:
 					elif num_brackets == -1:
 						print(f"Unbalanced parentheses: {s[i]} index {i} in {s}")
 						exit()
-				print(first_extra_bracket_index)
 
 			if first_extra_bracket_index != -1:
 				print(f"Unbalanced parentheses: {s[first_extra_bracket_index]} index {first_extra_bracket_index} in {s}")
