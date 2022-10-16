@@ -80,7 +80,7 @@ class MultiEquationSet:
 
 		if last_step and len(multieqs_to_check) > 0:
 			print("Cant choose multiequation. Unification error")
-			# TODO
+			print("Multiequation with more than 1 term in right part left")
 			exit()
 		if last_step:
 			multieqs_to_check = self.multiequations
@@ -93,13 +93,12 @@ class MultiEquationSet:
 			is_ok = True
 			for me_right_vars in right_part_vars:
 				if len(me_right_vars.intersection(multieqs_to_check[i].vars_set)) > 0:
-					is_ok = False
 					failer = me_right_vars.intersection(multieqs_to_check[i].vars_set)
 					sus1 = multieqs_to_check[i]
-					for j in range(len(self.multiequations)):
-						print(self.multiequations[j].get_right_part_vars())
-						if len(failer.intersection(self.multiequations[j].get_right_part_vars())) > 0:
-							sus2 = self.multiequations[j]
+					for j in range(len(multieqs_to_check)):
+						if len(failer.intersection(multieqs_to_check[j].get_right_part_vars())) > 0:
+							sus2 = multieqs_to_check[j]
+							is_ok = False
 					break
 			if is_ok:
 				break
