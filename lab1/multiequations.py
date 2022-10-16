@@ -94,6 +94,12 @@ class MultiEquationSet:
 			for me_right_vars in right_part_vars:
 				if len(me_right_vars.intersection(multieqs_to_check[i].vars_set)) > 0:
 					is_ok = False
+					failer = me_right_vars.intersection(multieqs_to_check[i].vars_set)
+					sus1 = multieqs_to_check[i]
+					for j in range(len(self.multiequations)):
+						print(self.multiequations[j].get_right_part_vars())
+						if len(failer.intersection(self.multiequations[j].get_right_part_vars())) > 0:
+							sus2 = self.multiequations[j]
 					break
 			if is_ok:
 				break
@@ -102,7 +108,8 @@ class MultiEquationSet:
 		# не встречается в правой части никакого уравнения вообще
 		if not is_ok:
 			print("Cant choose multiequation. Unification error")
-			# TODO
+			print(f"Failed to unify: {failer} is in the right part of multiequations:")
+			print(f"{sus1} and {sus2} don't unify")
 			exit()
 
 		result_multieq = multieqs_to_check[i]
