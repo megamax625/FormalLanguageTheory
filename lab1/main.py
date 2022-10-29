@@ -45,12 +45,16 @@ def start_multiequation(term1, term2, variables):
 def replace(result, T):
     if result['type'] == 'var':
         for multieq in T.multiequations[1:]:
-            if result['name'] in multieq.vars and multieq.terms:
-                replacement = multieq.terms[0]
-                if replacement['type'] == 'constr':
-                    for c in range(len(replacement['args'])):
-                        replacement['args'][c] = replace(replacement['args'][c], T)
-                return replacement
+            if result['name'] in multieq.vars:
+                if multieq.terms:
+                    replacement = multieq.terms[0]
+                    if replacement['type'] == 'constr':
+                        for c in range(len(replacement['args'])):
+                            replacement['args'][c] = replace(replacement['args'][c], T)
+                    return replacement
+                else:                               # если правая часть пустая
+                    replacement = {"type": "var", "name": multieq.vars[0]}
+                    return replacement
     elif result['type'] == 'constr':
         for c in range(len(result['args'])):
             result['args'][c] = replace(result['args'][c], T)

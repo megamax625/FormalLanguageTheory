@@ -1,7 +1,7 @@
 import re
 
 class Parser:
-	# {"type": "var", name: "x"}
+	# {"type": "var", "name": "x"}
 	# {"type": "constr", "name": "f", args: [...]}
 
 	def __init__(self, var_names, constructors):
