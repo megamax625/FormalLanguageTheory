@@ -88,27 +88,42 @@ class MultiEquationSet:
 		# нет мультиуравнений у которых >= 2 термов справа
 		if len(multieqs_to_check) == 0:
 			return -1, None
-
-		for i in range(len(multieqs_to_check)):
-			is_ok = True
-			for me_right_vars in right_part_vars:
-				if len(me_right_vars.intersection(multieqs_to_check[i].vars_set)) > 0:
-					failer = me_right_vars.intersection(multieqs_to_check[i].vars_set)
-					sus1 = multieqs_to_check[i]
-					for j in range(len(multieqs_to_check)):
-						if len(failer.intersection(multieqs_to_check[j].get_right_part_vars())) > 0:
-							sus2 = multieqs_to_check[j]
-							is_ok = False
+		sussy = False
+		if not last_step:
+			for i in range(len(multieqs_to_check)):
+				is_ok = True
+				for me_right_vars in right_part_vars:
+					if len(me_right_vars.intersection(multieqs_to_check[i].vars_set)) > 0:
+						failer = me_right_vars.intersection(multieqs_to_check[i].vars_set)
+						sus1 = multieqs_to_check[i]
+						for j in range(len(multieqs_to_check)):
+							if j != i and len(failer.intersection(multieqs_to_check[j].get_right_part_vars())) > 0:
+								sus2 = multieqs_to_check[j]
+								is_ok = False
+						break
+				if is_ok:
 					break
-			if is_ok:
-				break
+		else:
+			for i in range(len(multieqs_to_check)):
+				is_ok = True
+				for me_vars in multieqs_to_check[i].vars:
+					if len(set(me_vars).intersection(multieqs_to_check[i].get_right_part_vars())) > 0:
+						failer = set(me_vars).intersection(multieqs_to_check[i].get_right_part_vars())
+						sus1 = multieqs_to_check[i]
+						sussy = True
+						is_ok = False
+				if is_ok:
+					break
 
 		# нет мультиуравнения у которого ни одна переменная левой части 
 		# не встречается в правой части никакого уравнения вообще
 		if not is_ok:
 			print("Cant choose multiequation. Unification error")
 			print(f"Failed to unify: {failer} is in the right part of multiequations:")
-			print(f"{sus1} and {sus2} don't unify")
+			if not sussy:
+				print(f"{sus1} and {sus2} don't unify")
+			else:
+				print(f"{sus1} contains cycle")
 			exit()
 
 		result_multieq = multieqs_to_check[i]
