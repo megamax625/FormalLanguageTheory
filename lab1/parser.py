@@ -33,11 +33,19 @@ class Parser:
 			arg_count = 0
 			first_extra_bracket_index = -1
 			extra_bracket_state = False		# True значит есть лишние открывающие скобки помимо первой
+			inner_constr = False 			# True если зашли внутрь вложенного конструктора
+			collect = []
+			arguments = []
 			for i in range(len(s)):
 				# check args correctness
-				if (s[i] in self.var_names or s[i] in self.constructors.keys()) and num_brackets == 1:
+				collect.append(s[i])
+				if i != 0 and (s[i] in self.var_names or s[i] in self.constructors.keys()) and not inner_constr:
 					arg_count += 1
-				if passed_first_bracket and arg_ended:
+					arguments.append(s[i])
+					if s[i] in self.constructors.keys() and self.constructors[s[i]] != 0:
+						inner_constr = True
+						inner_constr_depth = num_brackets
+				if passed_first_bracket and not inner_constr and arg_ended:
 					arg_ended = False
 					if s[i] != ',' and i != first_bracket_index+1 and i != len(s)-1:
 						print("Bad constructor args")
@@ -55,6 +63,9 @@ class Parser:
 
 				elif s[i] == ')':
 					num_brackets -= 1
+					if inner_constr:
+						if num_brackets == inner_constr_depth:
+							inner_constr = False
 					if num_brackets == 1:
 						arg_ended = True
 						first_extra_bracket_index = -1
