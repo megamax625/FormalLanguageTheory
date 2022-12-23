@@ -33,19 +33,19 @@ class Parser:
 			arg_count = 0
 			first_extra_bracket_index = -1
 			extra_bracket_state = False		# True значит есть лишние открывающие скобки помимо первой
-			inner_constr = False 			# True если зашли внутрь вложенного конструктора
-			collect = []
-			arguments = []
+			last_symbol_is_constr = False
+			last_symbol = ""
 			for i in range(len(s)):
 				# check args correctness
-				collect.append(s[i])
-				if i != 0 and (s[i] in self.var_names or s[i] in self.constructors.keys()) and not inner_constr:
+				if i != 0:
+					last_symbol = s[i - 1]
+					if s[i - 1] in self.constructors:
+						last_symbol_is_constr = True
+					else:
+						last_symbol_is_constr = False
+				if (s[i] in self.var_names or s[i] in self.constructors.keys()) and num_brackets == 1:
 					arg_count += 1
-					arguments.append(s[i])
-					if s[i] in self.constructors.keys() and self.constructors[s[i]] != 0:
-						inner_constr = True
-						inner_constr_depth = num_brackets
-				if passed_first_bracket and not inner_constr and arg_ended:
+				if passed_first_bracket and arg_ended:
 					arg_ended = False
 					if s[i] != ',' and i != first_bracket_index+1 and i != len(s)-1:
 						print("Bad constructor args")
@@ -55,7 +55,11 @@ class Parser:
 				if s[i] == '(':
 					if not passed_first_bracket:
 						first_bracket_index = i
-					passed_first_bracket = True
+						passed_first_bracket = True
+					if not last_symbol_is_constr:
+						extra_bracket_state = True
+						print(f"Wrong parentheses structure in {s}: {s[i]} after {last_symbol} <not constructor> on index {i}")
+						exit()
 					num_brackets += 1
 					if num_brackets > 1:
 						if first_extra_bracket_index == -1:
@@ -63,9 +67,6 @@ class Parser:
 
 				elif s[i] == ')':
 					num_brackets -= 1
-					if inner_constr:
-						if num_brackets == inner_constr_depth:
-							inner_constr = False
 					if num_brackets == 1:
 						arg_ended = True
 						first_extra_bracket_index = -1
@@ -73,9 +74,6 @@ class Parser:
 						print(f"Unbalanced parentheses: {s[i]} index {i} in {s}")
 						exit()
 
-			if first_extra_bracket_index != -1:
-				print(f"Unbalanced parentheses: {s[first_extra_bracket_index]} index {first_extra_bracket_index} in {s}")
-				exit()
 			if arg_count != arg_num:
 				print(f"Arg numbers don't match: {s} must have {arg_num} args but has {arg_count}")
 				exit()

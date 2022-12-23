@@ -48,12 +48,23 @@ def replace(result, T):
             if result['name'] in multieq.vars:
                 if multieq.terms:
                     replacement = multieq.terms[0]
+                    print(f"replacing {result['name']} with {replacement['name']}")
                     if replacement['type'] == 'constr':
                         for c in range(len(replacement['args'])):
                             replacement['args'][c] = replace(replacement['args'][c], T)
                     return replacement
                 else:                               # если правая часть пустая
-                    replacement = {"type": "var", "name": multieq.vars[0]}
+                    replacer_index = -1
+                    for i in range(len(multieq.vars)):
+                        replacer_index = i
+                        good_replacer = True
+                        for meq in T.multiequations[1:]:
+                            if meq != multieq and multieq.vars[i] in meq.vars:
+                                good_replacer = False
+                                replacer_index = -1
+                    if replacer_index == -1: replacer_index = 0
+                    replacement = {"type": "var", "name": multieq.vars[replacer_index]}
+                    print(f"replacing <empty right meq part> {result['name']} with {replacement['name']}")
                     return replacement
     elif result['type'] == 'constr':
         for c in range(len(result['args'])):
